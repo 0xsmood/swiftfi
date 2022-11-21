@@ -19,7 +19,7 @@ export default function SwiftPayRequest(props) {
   const [userAddress, setUserAddress] = useState("");
   const [amount, setAmount] = useState(0);
 
-  const [tenure, setTenure] = useState(0);
+  const [tenure, setTenure] = useState("");
 
   const { address, isConnected } = useAccount();
   const provider = useProvider();
@@ -42,17 +42,18 @@ export default function SwiftPayRequest(props) {
     setrequestId(props.id);
     setAmount(props.amount);
     console.log(props.id, props.address, props.amount);
-  }, []);
+  }, [props]);
 
   const handlePayNow = async (_choice) => {
     try {
       console.log("Paying Now");
+      const _amount = ethers.utils.parseEther(amount);
       if (_choice == 1) {
         const tx = await PaymentsRequest_Contract.PayNow(
           userAddress,
           requestId,
           1,
-          { value: amount }
+          { value: _amount }
         );
         await tx.wait();
       } else if (_choice == 2) {
@@ -88,11 +89,12 @@ export default function SwiftPayRequest(props) {
 
   const handlePayEMI = async () => {
     try {
+      // console.log(tenure);
       console.log("Pay EMI activating ...");
       const tx = await PaymentsRequest_Contract.PayNow(
         userAddress,
         requestId,
-        tenure
+        3
       );
       await tx.wait();
       console.log("Pay EMI Activated ..");
@@ -285,10 +287,7 @@ export default function SwiftPayRequest(props) {
                               RequestID: {requestId}
                             </h2>
                             <h1 className="my-2 text-2xl font-semibold">
-                              Amount: $
-                              {amount
-                                ? ethers.utils.parseEther(amount.toString())
-                                : 0}
+                              Amount: {amount} Matic
                             </h1>
                           </div>
                         </div>
@@ -299,12 +298,18 @@ export default function SwiftPayRequest(props) {
                     <button
                       type="button"
                       className={`mt-3 inline-flex  rounded-md borderborder-transparent bg-green-500 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm`}
+                      onClick={() => {
+                        handlePayNow(2);
+                      }}
                     >
                       Pay with SwiftFi Wallet
                     </button>
                     <button
                       type="button"
                       className={` mt-3 inline-flex  rounded-md border border-transparent bg-green-500 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm`}
+                      onClick={() => {
+                        handlePayNow(1);
+                      }}
                     >
                       Pay with Other Wallet
                     </button>
@@ -383,10 +388,7 @@ export default function SwiftPayRequest(props) {
                               RequestId: {requestId}
                             </h2>
                             <h1 className="my-2 text-2xl font-semibold">
-                              Amount: $
-                              {amount
-                                ? ethers.utils.parseEther(amount.toString())
-                                : 0}
+                              Amount: {amount} Matic
                             </h1>
 
                             <h2 className="my-2 text-xl">
@@ -405,6 +407,9 @@ export default function SwiftPayRequest(props) {
                     <button
                       type="button"
                       className={`mt-3 inline-flex  rounded-md borderborder-transparent bg-green-500 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm`}
+                      onClick={() => {
+                        handlePayLater();
+                      }}
                     >
                       Start Pay Later
                     </button>
@@ -484,10 +489,7 @@ export default function SwiftPayRequest(props) {
                             </h2>
 
                             <h1 className="my-2 text-2xl font-semibold">
-                              Amount: $
-                              {amount
-                                ? ethers.utils.parseEther(amount.toString())
-                                : 0}
+                              Amount: {amount} Matic
                             </h1>
 
                             <button
@@ -606,10 +608,7 @@ export default function SwiftPayRequest(props) {
                             </h2>
 
                             <h1 className="my-2 text-2xl font-semibold">
-                              Amount: $
-                              {amount
-                                ? ethers.utils.parseEther(amount.toString())
-                                : 0}
+                              Amount: {amount} Matic
                             </h1>
 
                             <h2 className="my-2 text-xl">
@@ -618,12 +617,31 @@ export default function SwiftPayRequest(props) {
                                 id="countries"
                                 className="bg-gray-900 my-2 text-white border w-72 md:w-64 border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                               >
-                                <option value="3m" selected>
+                                <option
+                                  value="3m"
+                                  selected
+                                  onSelect={() => setTenure(3)}
+                                >
                                   3
                                 </option>
-                                <option value="6m">6</option>
-                                <option value="9m">9</option>
-                                <option value="12m">12</option>
+                                <option
+                                  value="6m"
+                                  onSelect={() => setTenure(6)}
+                                >
+                                  6
+                                </option>
+                                <option
+                                  value="9m"
+                                  onSelect={() => setTenure(9)}
+                                >
+                                  9
+                                </option>
+                                <option
+                                  value="12m"
+                                  onSelect={() => setTenure(12)}
+                                >
+                                  12
+                                </option>
                               </select>
                             </h2>
 
@@ -641,6 +659,9 @@ export default function SwiftPayRequest(props) {
                     <button
                       type="button"
                       className={`mt-3 inline-flex  rounded-md borderborder-transparent bg-green-500 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm`}
+                      onClick={() => {
+                        handlePayEMI();
+                      }}
                     >
                       Pay
                     </button>

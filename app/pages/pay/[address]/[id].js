@@ -60,8 +60,8 @@ export default function Id() {
         Note: ipfsData.Message,
         AmountinWei: data.amount,
         AmountinMatic: _amount,
-        RequestId: id,
-        RecieverAddress: userAddress,
+        RequestId: id_,
+        RecieverAddress: data[0],
       };
       console.log(request);
       setRequestData(request);
@@ -130,7 +130,7 @@ export default function Id() {
           <SwiftPayRequest
             id={requestData.RequestId}
             address={requestData.RecieverAddress}
-            amount={requestData.AmountinWei}
+            amount={requestData.AmountinMatic}
           />
         </div>
         <div className="max-w-[700px] md:mt-[50px]">
