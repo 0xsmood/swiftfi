@@ -10,7 +10,7 @@ import {
 import { payments_data } from "../../constants/constants";
 import { updateFlowPermissions } from "./acl";
 
-export default function component(userAddress) {
+export default function component() {
   const [amount, setAmount] = useState(0);
   const [noDays, setNoDays] = useState(0);
   const [flowRate, setFlowRate] = useState(0);

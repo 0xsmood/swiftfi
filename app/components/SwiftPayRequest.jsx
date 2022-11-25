@@ -6,6 +6,10 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useContract, useProvider, useSigner } from "wagmi";
 import { payments_data, paymentRequest_data } from "../constants/constants";
 import { ethers } from "ethers";
+import payStreamRequest from "../functionality/Superfluid/payStreamRequest";
+import { MATICxABI, MATICxAddress } from "../constants/superfluidConstants";
+import { updateFlowPermissions } from "../functionality/Superfluid/acl";
+import { gelatoAutomateRequest } from "../functionality/Superfluid/gelatoAutomationRequest";
 
 export default function SwiftPayRequest(props) {
   const [togglePayComponent, setTogglePayComponent] = useState(false);
@@ -18,8 +22,11 @@ export default function SwiftPayRequest(props) {
   const [requestId, setrequestId] = useState(0);
   const [userAddress, setUserAddress] = useState("");
   const [amount, setAmount] = useState(0);
-
-  const [tenure, setTenure] = useState("");
+  const [flowRate, setFlowRate] = useState(0);
+  const [noDays, setNoDays] = useState(0);
+  const [timePeriod, setTimePeriod] = useState(0);
+  const [lowBalance, setLowBalance] = useState(true);
+  const [maticxBalance, setMaticxBalance] = useState(0);
 
   const { address, isConnected } = useAccount();
   const provider = useProvider();
@@ -28,6 +35,12 @@ export default function SwiftPayRequest(props) {
   const Payments_Contract = useContract({
     address: payments_data.address,
     abi: payments_data.abi,
+    signerOrProvider: signer || provider,
+  });
+
+  const MATICxContract = useContract({
+    address: MATICxAddress,
+    abi: MATICxABI,
     signerOrProvider: signer || provider,
   });
 
@@ -106,17 +119,67 @@ export default function SwiftPayRequest(props) {
   const handlePayStream = async () => {
     try {
       console.log("Pay Stream activating ...");
-      const tx = await PaymentsRequest_Contract.PayNow(
-        userAddress,
-        requestId,
-        tenure
-      );
-      await tx.wait();
+      await checkMATICxBalance();
+      if (!lowBalance) {
+        console.log("Updating the permsissions");
+
+        const operator = payments_data.address;
+        /// allowance type = 5 , for create and Delete permissions
+        const tx = await updateFlowPermissions(operator, flowRate, 5);
+        await tx.wait();
+
+        console.log("Starting the Stream..");
+        const tx2 = await PaymentsRequest_Contract.PayStream(
+          userAddress,
+          requestId,
+          timePeriod,
+          flowRate,
+          MATICxAddress
+        );
+        await tx2.wait();
+
+        const tx3 = gelatoAutomateRequest(timePeriod, userAddress, requestId);
+      } else {
+      }
       console.log("Pay Stream Activated ..");
     } catch (err) {
       console.log(err);
     }
   };
+
+  const calculateFlowRate = async () => {
+    const _timePeriod = noDays * 24 * 60 * 60;
+    /// amount / sec is flowRate
+    const _flow = amount / timePeriod;
+    console.log(_flow);
+    setFlowRate(_flow);
+    setTimePeriod(_timePeriod);
+  };
+
+  useEffect(() => {
+    calculateFlowRate();
+  }, [noDays]);
+
+  const checkMATICxBalance = async () => {
+    try {
+      console.log("Checking the Balance ...");
+      const data = await MATICxContract.balanceOf(address);
+      const _amount = ethers.utils.formatEther(data);
+      console.log(_amount);
+      setMaticxBalance(_amount);
+      if (_amount > amount) {
+        setLowBalance(true);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    checkMATICxBalance();
+  }, []);
+
+  //// condition to show https://app.superfluid.finance/wrap?upgrade , link to upgrade the MATICx
 
   return (
     <div>
@@ -492,17 +555,21 @@ export default function SwiftPayRequest(props) {
                               Amount: {amount} Matic
                             </h1>
 
-                            {/* <button
-                              type="button"
-                              className={`my-2 inline-flex  rounded-md borderborder-transparent bg-green-500 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 sm:ml-0 sm:w-auto sm:text-sm`}
-                            >
-                              Superfluid enabled coin Swapping and token
-                              selection
-                            </button> */}
+                            {lowBalance ? (
+                              <button
+                                type="button"
+                                className={`my-2 inline-flex  rounded-md borderborder-transparent bg-green-500 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 sm:ml-0 sm:w-auto sm:text-sm`}
+                                // onClick={} https://app.superfluid.finance/wrap?upgrade send to this page
+                              >
+                                Upgrade you MATIC to Stream ↗
+                              </button>
+                            ) : (
+                              <a></a>
+                            )}
 
                             <div className="my-2 flex flex-col flex-wrap mx-auto items-start justify-between">
                               <label className="pb-2 text-sm" htmlFor="">
-                                Time Period : {tenure}
+                                Time Period : {noDays}
                               </label>
                               <input
                                 type="range"
@@ -511,24 +578,18 @@ export default function SwiftPayRequest(props) {
                                 className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-[5px] focus:ring-blue-500 focus:border-blue-500 w-72 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 // placeholder="Duration..."
                                 required
-                                onChange={(e) => setTenure(e.target.value)}
+                                onChange={(e) => setNoDays(e.target.value)}
                               />
                             </div>
-                            {/* 
+
                             <div className="my-2 flex flex-col flex-wrap mx-auto items-start justify-between">
                               <label className="pb-2 text-sm" htmlFor="">
-                                Time Period :
+                                MATICx Balance : {maticxBalance}
                               </label>
-                              <input
-                                type="text"
-                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-[5px] focus:ring-blue-500 focus:border-blue-500 w-72 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Duration..."
-                                required
-                              />
-                            </div> */}
+                            </div>
 
                             <h2 className="mt-4 text-xl ">
-                              Flow Rate: {` Rate HERE `}
+                              Flow Rate: {flowRate}
                             </h2>
 
                             <h2 className="mt-5 text-center text-xs underline ">

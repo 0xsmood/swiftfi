@@ -1,7 +1,7 @@
 import { Framework } from "@superfluid-finance/sdk-core";
 import { useProvider, useSigner } from "wagmi";
 
-import { MATICxAddress } from "../../../constants/superfluidConstants";
+import { MATICxAddress } from "../../constants/superfluidConstants";
 
 /// permission type = 7
 /// flowRateAllowance = 10 $DAIx/sec

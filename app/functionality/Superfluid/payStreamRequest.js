@@ -10,19 +10,14 @@ import { ethers } from "ethers";
 import React, { useEffect, useState } from "react";
 import { GelatoOpsSDK } from "@gelatonetwork/ops-sdk";
 
-import {
-  MATICxABI,
-  MATICxAddress,
-} from "../../../constants/superfluidConstants";
+import { MATICxABI, MATICxAddress } from "../../constants/superfluidConstants";
 import { payments_data, paymentRequest_data } from "../../constants/constants";
 import { updateFlowPermissions } from "./acl";
 
-export default function component(userAddress, requestID, amount) {
+export default function payStreamRequest(userAddress, requestID) {
   const [amount, setAmount] = useState(0);
   const [noDays, setNoDays] = useState(0);
   const [flowRate, setFlowRate] = useState(0);
-  const [timePeriod, setTimePeriod] = useState(0);
-  const [lowBalance, setLowBalance] = useState(true);
 
   const { address, isConnected } = useAccount();
   const provider = useProvider();
@@ -54,7 +49,7 @@ export default function component(userAddress, requestID, amount) {
 
   useEffect(() => {
     calculateFlowRate();
-  }, [amount, noDays]);
+  }, [noDays]);
 
   const checkMATICxBalance = async () => {
     try {
