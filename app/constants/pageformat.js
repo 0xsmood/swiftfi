@@ -10,4 +10,11 @@ export default function component() {
     abi: data.abi,
     signerOrProvider: signer || provider,
   });
+
+  const component = async () => {
+    try {
+    } catch (err) {
+      console.log(err);
+    }
+  };
 }

@@ -492,14 +492,29 @@ export default function SwiftPayRequest(props) {
                               Amount: {amount} Matic
                             </h1>
 
-                            <button
+                            {/* <button
                               type="button"
                               className={`my-2 inline-flex  rounded-md borderborder-transparent bg-green-500 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 sm:ml-0 sm:w-auto sm:text-sm`}
                             >
                               Superfluid enabled coin Swapping and token
                               selection
-                            </button>
+                            </button> */}
 
+                            <div className="my-2 flex flex-col flex-wrap mx-auto items-start justify-between">
+                              <label className="pb-2 text-sm" htmlFor="">
+                                Time Period : {tenure}
+                              </label>
+                              <input
+                                type="range"
+                                min="1"
+                                max="30"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-[5px] focus:ring-blue-500 focus:border-blue-500 w-72 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                // placeholder="Duration..."
+                                required
+                                onChange={(e) => setTenure(e.target.value)}
+                              />
+                            </div>
+                            {/* 
                             <div className="my-2 flex flex-col flex-wrap mx-auto items-start justify-between">
                               <label className="pb-2 text-sm" htmlFor="">
                                 Time Period :
@@ -510,7 +525,7 @@ export default function SwiftPayRequest(props) {
                                 placeholder="Duration..."
                                 required
                               />
-                            </div>
+                            </div> */}
 
                             <h2 className="mt-4 text-xl ">
                               Flow Rate: {` Rate HERE `}
@@ -616,32 +631,14 @@ export default function SwiftPayRequest(props) {
                               <select
                                 id="countries"
                                 className="bg-gray-900 my-2 text-white border w-72 md:w-64 border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                onChange={(e) => setTenure(e.target.value)}
                               >
-                                <option
-                                  value="3m"
-                                  selected
-                                  onSelect={() => setTenure(3)}
-                                >
+                                <option value="3m" selected>
                                   3
                                 </option>
-                                <option
-                                  value="6m"
-                                  onSelect={() => setTenure(6)}
-                                >
-                                  6
-                                </option>
-                                <option
-                                  value="9m"
-                                  onSelect={() => setTenure(9)}
-                                >
-                                  9
-                                </option>
-                                <option
-                                  value="12m"
-                                  onSelect={() => setTenure(12)}
-                                >
-                                  12
-                                </option>
+                                <option value="6m">6</option>
+                                <option value="9m">9</option>
+                                <option value="12m">12</option>
                               </select>
                             </h2>
 

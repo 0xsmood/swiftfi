@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@gelatonetwork/ops-sdk": "^2.0.5",
+    "@superfluid-finance/sdk-core": "^0.5.8",
     "eslint": "8.27.0",
     "eslint-config-next": "13.0.2",
     "flowbite": "^1.5.3",
